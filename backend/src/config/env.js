@@ -17,9 +17,11 @@ const formatClientUrl = (raw) => {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
 }
 
+const isProd = process.env.NODE_ENV === "production" || process.env.RENDER === "true"
+
 export const env = {
-  nodeEnv: process.env.NODE_ENV || "development",
-  isProd: process.env.NODE_ENV === "production",
+  nodeEnv: process.env.NODE_ENV || (process.env.RENDER ? "production" : "development"),
+  isProd,
   port: Number(process.env.PORT) || 5000,
   clientUrl: formatClientUrl(process.env.CLIENT_URL),
   jwtSecret: process.env.JWT_SECRET,

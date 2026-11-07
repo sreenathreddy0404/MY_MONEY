@@ -1,6 +1,8 @@
-// Single fetch wrapper for the whole app. Cookies (httpOnly JWT) are sent via credentials: "include";
-// the token is never readable from JavaScript.
-const BASE = import.meta.env.VITE_API_URL || "/api"
+// Single fetch wrapper for the whole app. Always use "/api" so requests are same-origin:
+// - In dev: Vite proxies /api to http://localhost:5000
+// - In prod: Vercel proxies /api to https://my-money-gdbw.onrender.com
+// This prevents browsers from blocking the httpOnly authentication cookie as a third-party cookie.
+const BASE = "/api"
 
 export class ApiError extends Error {
   constructor(message, status = 0, fields) {
