@@ -9,9 +9,9 @@ const num = (v) => Number(v ?? 0)
 // Distinct YYYY-MM keys that have any activity, newest first.
 export async function activityMonths(userId) {
   const rows = await prisma.$queryRaw`
-    SELECT DISTINCT to_char(d, YYYY-MM) AS m FROM (
-      SELECT date AS d FROM "Expense"  WHERE "userId" = ${userId}
-      UNION ALL SELECT date FROM "Income"   WHERE "userId" = ${userId}
+    SELECT DISTINCT to_char(d, 'YYYY-MM') AS m FROM (
+      SELECT date AS d FROM "Expense" WHERE "userId" = ${userId}
+      UNION ALL SELECT date FROM "Income" WHERE "userId" = ${userId}
       UNION ALL SELECT date FROM "Transfer" WHERE "userId" = ${userId}
     ) t ORDER BY m DESC`
   return rows.map((r) => r.m)
@@ -21,14 +21,15 @@ export async function activityMonths(userId) {
 async function monthlyRows(userId, from, to) {
   const rows = await prisma.$queryRaw`
     SELECT m,
-      COALESCE(SUM(CASE WHEN k = income THEN amt END), 0)  AS income,
-      COALESCE(SUM(CASE WHEN k = refund THEN amt END), 0)  AS refunds,
-      COALESCE(SUM(CASE WHEN k = expense THEN amt END), 0) AS expenses
+      COALESCE(SUM(CASE WHEN k = 'income' THEN amt END), 0)  AS income,
+      COALESCE(SUM(CASE WHEN k = 'refund' THEN amt END), 0)  AS refunds,
+      COALESCE(SUM(CASE WHEN k = 'expense' THEN amt END), 0) AS expenses
     FROM (
-      SELECT to_char(date, YYYY-MM) AS m, amount AS amt, expense AS k
+      SELECT to_char(date, 'YYYY-MM') AS m, amount AS amt, 'expense' AS k
         FROM "Expense" WHERE "userId" = ${userId} AND date >= ${from}::date AND date <= ${to}::date
       UNION ALL
-      SELECT to_char(date, YYYY-MM), amount, CASE WHEN source = Refund THEN refund ELSE income END
+      SELECT to_char(date, 'YYYY-MM'), amount,
+        CASE WHEN source = 'Refund' THEN 'refund' ELSE 'income' END
         FROM "Income" WHERE "userId" = ${userId} AND date >= ${from}::date AND date <= ${to}::date
     ) t GROUP BY m ORDER BY m`
   return new Map(rows.map((r) => [r.m, { income: num(r.income), refunds: num(r.refunds), expenses: num(r.expenses) }]))
@@ -120,7 +121,7 @@ export async function analyticsOverview(userId, { from: qFrom, to: qTo, keyword 
     prisma.expense.groupBy({ by: ["accountId"], where: { userId, ...range }, _sum: { amount: true } }),
     prisma.account.findMany({ where: { userId }, select: { id: true, accountName: true } }),
     prisma.$queryRaw`
-      SELECT to_char(date, YYYY-MM-DD) AS d, SUM(amount) AS amount FROM "Expense"
+      SELECT to_char(date, 'YYYY-MM-DD') AS d, SUM(amount) AS amount FROM "Expense"
       WHERE "userId" = ${userId} AND date >= ${from}::date AND date <= ${to}::date
       GROUP BY d ORDER BY d`,
     prisma.$queryRaw`
