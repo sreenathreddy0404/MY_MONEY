@@ -11,10 +11,16 @@ if (process.env.JWT_SECRET.length < 32) {
   process.exit(1)
 }
 
+const formatClientUrl = (raw) => {
+  if (!raw) return "http://localhost:5173"
+  const trimmed = raw.trim().replace(/\/+$/, "")
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   isProd: process.env.NODE_ENV === "production",
   port: Number(process.env.PORT) || 5000,
-  clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  clientUrl: formatClientUrl(process.env.CLIENT_URL),
   jwtSecret: process.env.JWT_SECRET,
 }

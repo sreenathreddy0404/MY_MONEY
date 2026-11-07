@@ -8,7 +8,7 @@ export const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 
 export const cookieOptions = () => ({
   httpOnly: true,
-  sameSite: "lax",
+  sameSite: env.isProd ? "none" : "lax",
   secure: env.isProd,
   path: "/",
 })
