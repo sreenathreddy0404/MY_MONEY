@@ -25,24 +25,23 @@ MyMoney is a full-stack personal finance tracker built with React, Vite, Express
 
 ```text
 MyMoney/
-├── src/                  # React frontend
-│   ├── api/              # API client modules
-│   ├── components/       # Reusable UI components
-│   ├── context/          # Auth, theme, toast contexts
-│   ├── hooks/            # Custom hooks
-│   ├── pages/            # Screens: dashboard, accounts, analytics, login, etc.
-│   ├── utils/            # Helper functions
-│   └── ...
-├── server/
-│   ├── prisma/           # Prisma schema and seed data
+├── frontend/             # React frontend
+│   ├── public/           # Static assets
+│   ├── src/              # React components, pages, api, context, hooks
+│   ├── index.html        # Entry HTML
+│   ├── package.json      # Frontend dependencies & scripts
+│   ├── vite.config.js    # Vite configuration & API proxy
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   └── .env.example
+├── backend/              # Node.js + Express backend
+│   ├── prisma/           # Prisma schema, migrations, and seed data
 │   ├── scripts/          # Admin/test scripts
-│   └── src/              # Express app, routes, services, controllers
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-├── index.html
+│   ├── src/              # Express app, routes, services, controllers
+│   ├── package.json      # Backend dependencies & scripts
+│   └── .env.example
 ├── README.md
-└── .env.example
+└── .gitignore
 ```
 
 ## Prerequisites
@@ -50,61 +49,65 @@ MyMoney/
 - Node.js 20+
 - PostgreSQL database (or Neon PostgreSQL)
 
-## Setup
+## Setup & Running
 
-1. Clone the repository.
-2. Install dependencies:
+Frontend and backend run independently from their respective directories.
+
+### 1. Backend Setup
+
+In your terminal:
 
 ```bash
+cd backend
 npm install
+cp .env.example .env
 ```
 
-3. Create the server environment file:
-
-```bash
-cp server/.env.example server/.env
-```
-
-4. Update `server/.env` with your values, including:
-
-- `DATABASE_URL`
-- `DIRECT_URL`
-- `JWT_SECRET`
-- `CLIENT_URL`
-- `PORT`
-- `NODE_ENV`
-
-Example:
+Update `backend/.env` with your values:
 
 ```env
 DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
 DIRECT_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
-JWT_SECRET="your-secret-key"
+JWT_SECRET="your-secret-key-at-least-32-chars-long"
 CLIENT_URL="http://localhost:5173"
 PORT=5000
 NODE_ENV="development"
 ```
 
-5. Generate Prisma client and migrate the database:
+Generate Prisma client and migrate the database:
 
 ```bash
 npm run db:generate
 npm run db:migrate -- --name init
 ```
 
-6. Optional: seed demo data:
+Optional demo seed:
 
 ```bash
 npm run db:seed
 ```
 
-7. Start the app:
+Start the backend API server:
 
 ```bash
 npm run dev
 ```
 
-This runs the frontend and backend together.
+The API will listen on `http://localhost:5000`.
+
+---
+
+### 2. Frontend Setup
+
+In a separate terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend development server will run on `http://localhost:5173` and proxy `/api` requests to `http://localhost:5000`.
 
 ## Default Access
 
@@ -115,17 +118,26 @@ If seeded, the app includes a demo account such as:
 
 ## Scripts
 
-From the project root:
+### Frontend Scripts (`cd frontend`)
 
 ```bash
-npm run dev          # frontend + API together
-npm run server       # API only
-npm run build        # production frontend build
+npm run dev          # Start Vite dev server (port 5173)
+npm run build        # Production build to dist/
+npm run preview      # Preview production build locally
+```
+
+### Backend Scripts (`cd backend`)
+
+```bash
+npm run dev          # Start Express API server with file watch
+npm run start        # Start Express API server in production mode
+npm run check        # Syntax check server.js
 npm run db:generate  # Prisma generate
 npm run db:migrate   # Prisma migrate dev
 npm run db:deploy    # Prisma migrate deploy
-npm run db:seed      # seed demo data
-npm run test:smoke   # smoke tests against a running API
+npm run db:seed      # Seed demo data
+npm run db:studio    # Open Prisma Studio GUI
+npm run test:smoke   # Smoke tests against running API
 ```
 
 ## API Overview

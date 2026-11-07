@@ -1,5 +1,5 @@
 // End-to-end smoke test against a RUNNING server (npm run dev) with a real database.
-//   npm run test:smoke            (from the server/ folder, or from the project root)
+//   npm run test:smoke            (from the backend/ folder, or from the project root)
 // It registers throwaway users with random emails and leaves their data behind (use a dev database).
 const BASE = process.env.API_URL || "http://localhost:5000/api"
 

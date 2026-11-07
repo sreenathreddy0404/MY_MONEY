@@ -3,7 +3,7 @@ import "dotenv/config"
 const required = ["DATABASE_URL", "JWT_SECRET"]
 const missing = required.filter((k) => !process.env[k])
 if (missing.length) {
-  console.error(`Missing required environment variables: ${missing.join(", ")}. Copy server/.env.example to server/.env.`)
+  console.error(`Missing required environment variables: ${missing.join(", ")}. Copy backend/.env.example to backend/.env.`)
   process.exit(1)
 }
 if (process.env.JWT_SECRET.length < 32) {
